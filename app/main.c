@@ -16,6 +16,11 @@ static OS_STK startup_task_stk[STARTUP_TASK_STK_SIZE];
 static OS_STK led_task_stk[LED_TASK_STK_SIZE];
 
 
+OS_MEM *CommTxBuffer;                           //定义内存分区指针
+INT8U commTxPart[50][64];                       //定义内存分区和内存块
+INT8U err;
+INT8U *BlkPtr;                                  //定义内存块指针
+
 
 /******************************************************************************* 
 ******************************************************************************** 
@@ -30,6 +35,16 @@ static OS_STK led_task_stk[LED_TASK_STK_SIZE];
 void main(void) {  
   BSP_Init();    
   OSInit();
+  
+#if OS_MEM_EN == 1  
+  CommTxBuffer = OSMemCreate(                   //创建一个内存分区
+                             commTxPart,
+                             50,
+                             64,
+                             &err
+                             );
+  
+#endif  
   
 #if OS_STK_GROWTH == 1                          //堆栈向下生长时
   
@@ -60,6 +75,9 @@ void main(void) {
   OSStart();                                    //开始任务调度之前必须创建至少一个任务
 
 } 
+
+
+
 
 
 

@@ -112,6 +112,55 @@ void Task_LED(void * pdata)
 } 
 
 
+/******************************************************************************* 
+******************************************************************************** 
+* 函数名称: Task_MemGet()
+* 
+* 功    能: 请求一个内存块任务,等待一分钟，释放内存块。
+*           需要在主函数中使用OSMemCreate函数创建一个内存分区，
+*           请求内存块时不能超过定义内存块长度范围
+*               
+* 
+* 作    者: 秦战强
+* 日    期: 2016/12/30
+******************************************************************************** 
+*******************************************************************************/ 
+void Task_MemGet(void * pdata) 
+{
+  extern OS_MEM *CommTxBuffer;                           //定义内存分区指针  
+  extern INT8U commTxPart[50][64];                       //定义内存分区和内存块
+  extern INT8U err;
+  extern INT8U *BlkPtr;                                  //定义内存块指针
+
+
+# if OS_CRITICAL_METHOD == 3
+  OS_CPU_SR cpu_sr;                     //声明变量cpu_sr
+# endif
+  
+#if (OS_TASK_STAT_EN > 0)
+  OSStatInit();                         //开启统计任务
+#endif
+  
+  for(;;)
+  {        
+    OS_ENTER_CRITICAL();                //关中断
+    //put your code here
+    
+    BlkPtr = OSMemGet(                  //请求一个内存块
+                      CommTxBuffer,
+                      &err
+                      );
+    
+    OSTimeDlyHMSM(0,1,0,0);
+    
+    OSMemPut(CommTxBuffer,              //释放一个内存块
+             BlkPtr
+             );
+    
+    OS_EXIT_CRITICAL();                 //开中断
+  } 
+} 
+
     
       
 
